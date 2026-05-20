@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phần Mềm Tạo Bảng Chấm Công Nhanh & Chuẩn Mực</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen transition-colors duration-200">
+
+    <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+        
+        <!-- Header & Toolbar Cấu hình -->
+        <header class="mb-6 border-b border-slate-200 pb-5">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2.5 bg-indigo-600 text-white rounded-xl shadow-md shadow-indigo-100">
+                        <i class="fa-solid fa-calendar-check text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-slate-900 tracking-tight">Hệ Thống Chấm Công Nhanh</h1>
+                        <p class="text-xs text-slate-500">Tự động hóa tính giờ, tăng ca & quản lý chu kỳ công chuẩn mực</p>
+                    </div>
+                </div>
+                
+                <div class="flex flex-wrap gap-2 items-center">
+                    <button onclick="exportToExcel()" class="inline-flex items-center space-x-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium text-xs transition-all shadow-sm">
+                        <i class="fa-solid fa-file-excel"></i>
+                        <span>Xuất Excel (.csv)</span>
+                    </button>
+                    <button onclick="resetDataWithConfirmation()" class="inline-flex items-center space-x-2 bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2 rounded-lg font-medium text-xs transition-all">
+                        <i class="fa-solid fa-arrow-rotate-left"></i>
+                        <span>Đặt lại dữ liệu</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Thanh cấu hình chu kỳ tinh gọn -->
+            <div class="bg-white border border-slate-200/80 rounded-xl p-3 shadow-sm flex flex-col md:flex-row items-center gap-4 text-sm">
+                <div class="flex items-center space-x-2 text-indigo-600 font-semibold shrink-0">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Cấu hình chu kỳ:</span>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-slate-500 text-xs font-medium shrink-0">Nhân viên:</span>
+                        <input type="text" id="employeeName" value="Huỳnh Thị Hồng Phiến" oninput="saveData()" class="w-full bg-slate-50 px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none">
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                        <span class="text-slate-500 text-xs font-medium shrink-0">Tháng:</span>
+                        <select id="selectMonth" onchange="changeCycle()" class="w-full bg-slate-50 px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none">
+                            <option value="1">Tháng 1</option>
+                            <option value="2">Tháng 2</option>
+                            <option value="3">Tháng 3</option>
+                            <option value="4" selected>Tháng 4</option>
+                            <option value="5">Tháng 5</option>
+                            <option value="6">Tháng 6</option>
+                            <option value="7">Tháng 7</option>
+                            <option value="8">Tháng 8</option>
+                            <option value="9">Tháng 9</option>
+                            <option value="10">Tháng 10</option>
+                            <option value="11">Tháng 11</option>
+                            <option value="12">Tháng 12</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                        <span class="text-slate-500 text-xs font-medium shrink-0">Năm:</span>
+                        <select id="selectYear" onchange="changeCycle()" class="w-full bg-slate-50 px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none">
+                            <option value="2025">2025</option>
+                            <option value="2026" selected>2026</option>
+                            <option value="2027">2027</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="text-[11px] text-slate-400 italic shrink-0 hidden lg:block">
+                    Chu kỳ chuẩn: Ngày 26 tháng trước → 25 tháng này.
+                </div>
+            </div>
+        </header>
+
+        <!-- Tip hướng dẫn nhanh -->
+        <div class="bg-amber-50 border-l-4 border-amber-500 p-3 rounded-xl mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0 pt-0.5">
+                    <i class="fa-solid fa-lightbulb text-amber-600 text-sm"></i>
+                </div>
+                <div class="ml-2.5">
+                    <h3 class="text-xs font-bold text-amber-900">Mẹo nhập liệu nhanh:</h3>
+                    <div class="mt-0.5 text-[11px] text-amber-800 flex flex-wrap gap-x-4 gap-y-0.5">
+                        <span>• Nhập <code class="bg-amber-100 px-0.5 rounded font-bold">8</code> hoặc <code class="bg-amber-100 px-0.5 rounded font-bold">8h</code> sẽ hiểu là <b>8h</b></span>
+                        <span>• Nhập <code class="bg-amber-100 px-0.5 rounded font-bold">1.5</code> hoặc <code class="bg-amber-100 px-0.5 rounded font-bold">1h30m</code> sẽ hiểu là <b>1h30</b></span>
+                        <span>• Nhập <code class="bg-amber-100 px-0.5 rounded font-bold">off</code> hoặc <code class="bg-amber-100 px-0.5 rounded font-bold">o</code> sẽ tự viết hoa thành <b class="text-red-600">OFF</b></span>
+                        <span>• Bảng tự lưu ngay khi bạn gõ và chuyển ô.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bảng danh sách ngày công -->
+        <div class="bg-white rounded-2xl border border-slate-150 shadow-sm overflow-hidden mb-5">
+            <div class="px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="flex items-center space-x-2">
+                    <span class="w-2.5 h-2.5 bg-indigo-600 rounded-full animate-pulse"></span>
+                    <h2 class="text-base font-bold text-slate-900" id="tableTitle">Bảng Chi Tiết Ngày Công</h2>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="fillStandardEightHours()" class="inline-flex items-center space-x-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>Điền nhanh 8h ngày thường (T2-T7)</span>
+                    </button>
+                    <button onclick="clearAllHours()" class="inline-flex items-center space-x-1 bg-rose-50 hover:bg-rose-100 text-rose-700 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">
+                        <i class="fa-solid fa-trash-can"></i>
+                        <span>Xóa toàn bộ giờ</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto max-h-[500px] overflow-y-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead class="sticky top-0 bg-slate-50 z-10 shadow-[0_1px_0_0_rgba(226,232,240,1)]">
+                        <tr class="text-slate-500 text-[11px] font-semibold uppercase tracking-wider">
+                            <th class="py-3 px-6 text-center w-16">STT</th>
+                            <th class="py-3 px-6 w-44">NGÀY THÁNG</th>
+                            <th class="py-3 px-6 w-32 text-center">THỨ</th>
+                            <th class="py-3 px-6 text-center w-48">GIỜ LÀM CHÍNH (TIME WORK)</th>
+                            <th class="py-3 px-6 text-center w-40">TĂNG CA (OT)</th>
+                            <th class="py-3 px-6 text-center font-bold text-indigo-700 bg-indigo-50/50 w-44">TỔNG CỘNG (TOTAL)</th>
+                            <th class="py-3 px-6">GHI CHÚ / NOTE</th>
+                        </tr>
+                    </thead>
+                    <tbody id="timesheetBody" class="divide-y divide-slate-100 text-sm">
+                        <!-- Sẽ tự động kết xuất bằng Javascript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Khung thống kê thu nhỏ đặt chung dưới bảng -->
+        <div class="bg-slate-900 text-white rounded-2xl border border-slate-850 shadow-lg p-5 max-w-4xl mx-auto mb-8">
+            <div class="flex items-center space-x-2 mb-3.5 border-b border-slate-800 pb-2.5">
+                <i class="fa-solid fa-square-poll-horizontal text-indigo-400 text-base"></i>
+                <h3 class="text-sm font-bold tracking-wide uppercase text-slate-200">Bảng Tổng Hợp Kết Quả Công</h3>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-0 divide-y md:divide-y-0 md:divide-x divide-slate-800">
+                
+                <!-- Cột 1: Ngày Công -->
+                <div class="space-y-2 md:pr-6">
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400 text-xs">Số ngày làm việc (WORK):</span>
+                        <span id="statWorkDays" class="text-sm font-bold text-emerald-400">0 ngày</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400 text-xs">Số ngày nghỉ phép (OFF):</span>
+                        <span id="statOffDays" class="text-sm font-bold text-rose-400">0 ngày</span>
+                    </div>
+                </div>
+
+                <!-- Cột 2: Giờ Làm Chính -->
+                <div class="space-y-2 pt-3 md:pt-0 md:px-6">
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400 text-xs">Tổng giờ làm chính:</span>
+                        <span id="statTotalWorkHours" class="text-sm font-extrabold text-sky-400">0h</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400 text-xs">Trung bình/ngày:</span>
+                        <span id="statAvgWorkHours" class="text-xs font-semibold text-slate-300">0h/ngày</span>
+                    </div>
+                </div>
+
+                <!-- Cột 3: Tăng ca & Tổng cộng -->
+                <div class="space-y-2 pt-3 md:pt-0 md:pl-6">
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400 text-xs">Tổng giờ tăng ca (OT):</span>
+                        <span id="statTotalOtHours" class="text-sm font-bold text-amber-400">0h</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-indigo-950/40 p-1.5 rounded-lg border border-indigo-900/40">
+                        <span class="text-slate-300 text-xs font-semibold">TỔNG CỘNG THỰC TẾ:</span>
+                        <span id="statGrandTotalHours" class="text-base font-black text-indigo-300">0h</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Hộp thoại tùy chỉnh xác nhận hoặc thông báo tự dựng thay thế alert() -->
+    <div id="customModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 overflow-hidden transform transition-all scale-95 opacity-0 duration-200" id="modalContainer">
+            <div class="p-6">
+                <div class="flex items-center justify-center w-12 h-12 bg-rose-100 text-rose-600 rounded-full mx-auto mb-4" id="modalIcon">
+                    <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900 text-center mb-2" id="modalTitle">Xác nhận</h3>
+                <p class="text-slate-500 text-sm text-center" id="modalMessage">Bạn có chắc chắn muốn thực hiện hành động này?</p>
+            </div>
+            <div class="bg-slate-50 px-6 py-4 flex justify-end space-x-2">
+                <button id="modalBtnCancel" class="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-sm font-medium transition-colors">Hủy</button>
+                <button id="modalBtnConfirm" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-sm font-medium transition-colors">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Toast thông báo nhanh -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-950 text-white text-xs md:text-sm px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-2 z-50 transform translate-y-20 opacity-0 transition-all duration-300">
+        <i class="fa-solid fa-circle-check text-emerald-400 text-base" id="toastIcon"></i>
+        <span id="toastMessage">Đã lưu dữ liệu tự động thành công!</span>
+    </div>
+
+    <!-- Logic Javascript điều khiển chấm công -->
+    <script>
+        // --- 1. BIẾN TOÀN CỤC & DỮ LIỆU BAN ĐẦU ---
+        let currentMonth = 4; // Tháng 4 mặc định theo file của khách hàng
+        let currentYear = 2026;
+        let employeeName = "Huỳnh Thị Hồng Phiến";
+        let timesheetData = {}; // Cấu trúc lưu trữ dạng: {'YYYY-MM-DD': {work: '8h', ot: '2h', note: ''}}
+
+        // Dữ liệu mẫu tháng 12/2025 và tháng 4/2026 lấy cảm hứng từ các file CSV đính kèm
+        const defaultSampleData = {
+            // Tháng 4 năm 2026 (Chu kỳ 26/03 -> 25/04)
+            "2026-03-26": { work: "8h", ot: "2h", note: "Làm thêm đầu kỳ" },
+            "2026-03-27": { work: "8h", ot: "", note: "" },
+            "2026-03-28": { work: "8h", ot: "", note: "" },
+            "2026-03-29": { work: "8h", ot: "2h", note: "" },
+            "2026-03-30": { work: "8h", ot: "", note: "" },
+            "2026-03-31": { work: "8h", ot: "", note: "" },
+            "2026-04-01": { work: "8h", ot: "30m", note: "" },
+            "2026-04-02": { work: "8h", ot: "1h", note: "" },
+            "2026-04-03": { work: "8h", ot: "2h30", note: "" },
+            "2026-04-12": { work: "8h", ot: "1h", note: "" },
+            "2026-04-13": { work: "8h", ot: "", note: "" },
+            "2026-04-14": { work: "8h", ot: "", note: "" },
+            "2026-04-15": { work: "OFF", ot: "", note: "Nghỉ có phép" },
+            "2026-04-16": { work: "8h", ot: "", note: "" },
+            "2026-04-17": { work: "8h", ot: "", note: "" },
+            "2026-04-18": { work: "8h", ot: "", note: "" },
+            "2026-04-19": { work: "8h", ot: "", note: "" },
+
+            // Tháng 12 năm 2025 (Chu kỳ 26/11 -> 25/12)
+            "2025-11-26": { work: "8h", ot: "2h", note: "" },
+            "2025-11-27": { work: "8h", ot: "1h", note: "" },
+            "2025-11-28": { work: "8h", ot: "2h", note: "" },
+            "2025-11-29": { work: "8h", ot: "4h", note: "" },
+            "2025-11-30": { work: "8h", ot: "2h", note: "" },
+            "2025-12-01": { work: "8h", ot: "2h", note: "" },
+            "2025-12-02": { work: "8h", ot: "2h", note: "" },
+            "2025-12-03": { work: "8h", ot: "2h", note: "" },
+            "2025-12-18": { work: "OFF", ot: "", note: "Nghỉ cá nhân" },
+            "2025-12-20": { work: "8h", ot: "1h", note: "" }
+        };
+
+        // --- 2. BẮT ĐẦU KHI TRANG SẴN SÀNG ---
+        window.onload = function() {
+            loadFromLocalStorage();
+            initInterface();
+            renderTimesheet();
+            showToast("Đã tải dữ liệu chấm công thành công!", "success");
+        };
+
+        // Khởi tạo các giá trị trên giao diện
+        function initInterface() {
+            document.getElementById('selectMonth').value = currentMonth;
+            document.getElementById('selectYear').value = currentYear;
+            document.getElementById('employeeName').value = employeeName;
+        }
+
+        // --- 3. QUẢN LÝ LƯU TRỮ LOCALSTORAGE ---
+        function loadFromLocalStorage() {
+            const savedData = localStorage.getItem('fast_timesheet_data');
+            const savedMonth = localStorage.getItem('fast_timesheet_month');
+            const savedYear = localStorage.getItem('fast_timesheet_year');
+            const savedName = localStorage.getItem('fast_timesheet_name');
+
+            if (savedData) {
+                timesheetData = JSON.parse(savedData);
+            } else {
+                // Sử dụng dữ liệu mẫu lần đầu tiên
+                timesheetData = JSON.parse(JSON.stringify(defaultSampleData));
+                localStorage.setItem('fast_timesheet_data', JSON.stringify(timesheetData));
+            }
+
+            if (savedMonth) currentMonth = parseInt(savedMonth);
+            if (savedYear) currentYear = parseInt(savedYear);
+            if (savedName) employeeName = savedName;
+        }
+
+        function saveData() {
+            employeeName = document.getElementById('employeeName').value;
+            localStorage.setItem('fast_timesheet_data', JSON.stringify(timesheetData));
+            localStorage.setItem('fast_timesheet_month', currentMonth);
+            localStorage.setItem('fast_timesheet_year', currentYear);
+            localStorage.setItem('fast_timesheet_name', employeeName);
+            calculateTotals();
+        }
+
+        // Đặt lại dữ liệu gốc
+        function resetDataWithConfirmation() {
+            showModal(
+                "Xác nhận đặt lại",
+                "Bạn có chắc chắn muốn đặt lại toàn bộ dữ liệu về trạng thái ban đầu? Mọi chỉnh sửa của bạn sẽ bị xóa.",
+                "rose",
+                function() {
+                    timesheetData = JSON.parse(JSON.stringify(defaultSampleData));
+                    currentMonth = 4;
+                    currentYear = 2026;
+                    employeeName = "Huỳnh Thị Hồng Phiến";
+                    initInterface();
+                    saveData();
+                    renderTimesheet();
+                    showToast("Đã đặt lại dữ liệu mẫu thành công!", "success");
+                }
+            );
+        }
+
+        // --- 4. CÔNG THỨC XỬ LÝ CHU KỲ NGÀY THÁNG ---
+        // Sinh ra danh sách ngày từ ngày 26 của tháng (month - 1) đến ngày 25 của tháng (month)
+        function generateCycleDates(month, year) {
+            const dates = [];
+            
+            // Xác định tháng trước đó
+            let prevMonth = month - 1;
+            let prevYear = year;
+            if (prevMonth === 0) {
+                prevMonth = 12;
+                prevYear = year - 1;
+            }
+
+            // Số ngày trong tháng trước đó
+            const daysInPrevMonth = new Date(prevYear, prevMonth, 0).getDate();
+
+            // 1. Lấy từ ngày 26 của tháng trước đến hết tháng trước
+            for (let d = 26; d <= daysInPrevMonth; d++) {
+                const dateString = `${prevYear}-${String(prevMonth).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                dates.push(dateString);
+            }
+
+            // 2. Lấy từ ngày 1 đến ngày 25 của tháng hiện tại
+            for (let d = 1; d <= 25; d++) {
+                const dateString = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                dates.push(dateString);
+            }
+
+            return dates;
+        }
+
+        // Lấy tên Thứ trong tiếng Việt
+        function getVietnameseDayOfWeek(dateString) {
+            const date = new Date(dateString);
+            const days = ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"];
+            return days[date.getDay()];
+        }
+
+        // Khi người dùng đổi tháng hoặc năm trên dropdown
+        function changeCycle() {
+            currentMonth = parseInt(document.getElementById('selectMonth').value);
+            currentYear = parseInt(document.getElementById('selectYear').value);
+            saveData();
+            renderTimesheet();
+            showToast(`Đã chuyển sang chu kỳ Tháng ${currentMonth}/${currentYear}`, "info");
+        }
+
+        // --- 5. BỘ CHUẨN HÓA VIẾT TẮT THÔNG MINH ("h", "m", "off") ---
+        function sanitizeInput(val) {
+            if (!val) return "";
+            let s = val.toString().trim().toLowerCase();
+            if (s === "") return "";
+
+            // Nhận diện ngày nghỉ
+            if (s === "off" || s === "o" || s === "n" || s === "nghỉ" || s === "nghi") {
+                return "OFF";
+            }
+
+            // Xử lý nếu người dùng nhập số thuần túy (VD: "8" -> "8h")
+            if (/^\d+(\.\d+)?$/.test(s)) {
+                let num = parseFloat(s);
+                if (num === 0) return "";
+                // Nếu có phần thập phân (VD: 8.5 -> 8h30, 8.25 -> 8h15)
+                if (num % 1 !== 0) {
+                    let hours = Math.floor(num);
+                    let mins = Math.round((num % 1) * 60);
+                    return `${hours}h${mins > 0 ? mins : ''}`;
+                }
+                return `${num}h`;
+            }
+
+            // Nếu người dùng nhập dạng "8h30" hoặc "30m" hoặc "8h"
+            s = s.replace(/\s+/g, ''); // xóa khoảng trắng
+            s = s.replace(/,/g, '.'); // dấu phẩy thành dấu chấm
+            
+            // Định dạng phút lẻ như "30m" hoặc "45m"
+            if (/^\d+m$/.test(s)) {
+                return s;
+            }
+
+            // Định dạng giờ chuẩn "8h", "2h", "2.5h" -> chuyển "2.5h" thành "2h30"
+            const hourMatch = s.match(/^(\d+(\.\d+)?)h$/);
+            if (hourMatch) {
+                let num = parseFloat(hourMatch[1]);
+                if (num % 1 !== 0) {
+                    let hours = Math.floor(num);
+                    let mins = Math.round((num % 1) * 60);
+                    return `${hours}h${mins > 0 ? mins : ''}`;
+                }
+                return `${num}h`;
+            }
+
+            // Định dạng hỗn hợp kiểu "8h30m" -> "8h30"
+            const mixMatch = s.match(/^(\d+)h(\d+)m?$/);
+            if (mixMatch) {
+                return `${mixMatch[1]}h${mixMatch[2]}`;
+            }
+
+            return val;
+        }
+
+        // Chuyển đổi chuỗi định dạng thời gian ("8h30", "30m", "8h") thành số phút
+        function timeStringToMinutes(str) {
+            if (!str) return 0;
+            let s = str.toString().trim().toUpperCase();
+            if (s === "OFF" || s === "") return 0;
+
+            if (/^\d+M$/.test(s)) {
+                return parseInt(s);
+            }
+
+            if (/^\d+H$/.test(s)) {
+                return parseInt(s) * 60;
+            }
+
+            const mixMatch = s.match(/^(\d+)H(\d+)(M)?$/);
+            if (mixMatch) {
+                return parseInt(mixMatch[1]) * 60 + parseInt(mixMatch[2]);
+            }
+
+            const fallbackNum = parseFloat(s);
+            if (!isNaN(fallbackNum)) return fallbackNum * 60;
+
+            return 0;
+        }
+
+        // Chuyển đổi từ số phút thành định dạng hiển thị (VD: 510 phút -> "8h30")
+        function minutesToTimeString(totalMinutes) {
+            if (totalMinutes <= 0) return "";
+            const hours = Math.floor(totalMinutes / 60);
+            const mins = totalMinutes % 60;
+
+            if (hours === 0) {
+                return `${mins}m`;
+            }
+            if (mins === 0) {
+                return `${hours}h`;
+            }
+            return `${hours}h${mins}`;
+        }
+
+        // Cộng hai định dạng chuỗi thời gian
+        function sumTimeStrings(str1, str2) {
+            if (str1 === "OFF" && str2 === "OFF") return "OFF";
+            let s1 = str1 === "OFF" ? "" : str1;
+            let s2 = str2 === "OFF" ? "" : str2;
+
+            const m1 = timeStringToMinutes(s1);
+            const m2 = timeStringToMinutes(s2);
+            const sumMinutes = m1 + m2;
+
+            if (sumMinutes === 0) {
+                if (str1 === "OFF" || str2 === "OFF") return "OFF";
+                return "";
+            }
+            return minutesToTimeString(sumMinutes);
+        }
+
+        // --- 6. KHỞI TẠO BẢNG CHẤM CÔNG ---
+        function renderTimesheet() {
+            const tableBody = document.getElementById('timesheetBody');
+            const tableTitle = document.getElementById('tableTitle');
+            tableBody.innerHTML = '';
+
+            let prevMonthStr = currentMonth === 1 ? "12" : String(currentMonth - 1);
+            let prevYearStr = currentMonth === 1 ? String(currentYear - 1) : String(currentYear);
+            tableTitle.textContent = `Bảng Chi Tiết Ngày Công (Chu kỳ từ 26/${prevMonthStr}/${prevYearStr} đến 25/${currentMonth}/${currentYear})`;
+
+            const dates = generateCycleDates(currentMonth, currentYear);
+
+            dates.forEach((dateStr, index) => {
+                const dayName = getVietnameseDayOfWeek(dateStr);
+                const isWeekend = dayName === "Chủ nhật" || dayName === "Thứ bảy";
+                
+                if (!timesheetData[dateStr]) {
+                    timesheetData[dateStr] = { work: "", ot: "", note: "" };
+                }
+                const record = timesheetData[dateStr];
+
+                let rowTotal = "";
+                if (record.work === "OFF") {
+                    rowTotal = "OFF";
+                } else {
+                    rowTotal = sumTimeStrings(record.work, record.ot);
+                }
+
+                const parts = dateStr.split('-');
+                const displayDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+
+                const tr = document.createElement('tr');
+                tr.className = `hover:bg-indigo-50/40 transition-colors ${isWeekend ? 'bg-slate-50/50' : ''}`;
+
+                tr.innerHTML = `
+                    <td class="py-2.5 px-6 text-center text-slate-400 font-medium">${index + 1}</td>
+                    <td class="py-2.5 px-6 font-semibold text-slate-700">${displayDate}</td>
+                    <td class="py-2.5 px-6 text-center">
+                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold ${
+                            dayName === "Chủ nhật" ? "bg-rose-50 text-rose-600" :
+                            dayName === "Thứ bảy" ? "bg-amber-50 text-amber-600" : "bg-slate-100 text-slate-600"
+                        }">${dayName}</span>
+                    </td>
+                    <td class="py-1.5 px-4 text-center">
+                        <input type="text" 
+                               value="${record.work}" 
+                               placeholder="VD: 8h hoặc OFF" 
+                               onblur="updateRowField('${dateStr}', 'work', this.value)"
+                               onkeydown="handleEnterKey(event, this)"
+                               class="w-32 text-center px-2 py-1.5 border border-slate-200 rounded-lg text-sm font-semibold transition-all focus:ring-2 focus:ring-indigo-500 outline-none ${record.work === 'OFF' ? 'bg-red-50 text-red-600 border-red-200' : 'bg-white text-slate-800'}" />
+                    </td>
+                    <td class="py-1.5 px-4 text-center">
+                        <input type="text" 
+                               value="${record.ot}" 
+                               placeholder="VD: 2h" 
+                               onblur="updateRowField('${dateStr}', 'ot', this.value)"
+                               onkeydown="handleEnterKey(event, this)"
+                               class="w-32 text-center px-2 py-1.5 border border-slate-200 rounded-lg text-sm font-semibold transition-all focus:ring-2 focus:ring-amber-500 outline-none bg-white text-amber-700" />
+                    </td>
+                    <td class="py-2.5 px-6 text-center font-bold text-indigo-700 bg-indigo-50/30">
+                        <span class="text-sm px-3 py-1 rounded-lg ${rowTotal === 'OFF' ? 'bg-red-50 text-red-600 font-bold' : (rowTotal ? 'bg-indigo-50 text-indigo-800' : '')}">
+                            ${rowTotal || '-'}
+                        </span>
+                    </td>
+                    <td class="py-1.5 px-4">
+                        <input type="text" 
+                               value="${record.note}" 
+                               placeholder="Thêm ghi chú..." 
+                               onblur="updateRowField('${dateStr}', 'note', this.value)"
+                               onkeydown="handleEnterKey(event, this)"
+                               class="w-full px-3 py-1.5 border-b border-transparent hover:border-slate-200 focus:border-indigo-500 transition-all text-sm text-slate-500 outline-none bg-transparent focus:bg-white focus:rounded-lg" />
+                    </td>
+                `;
+
+                tableBody.appendChild(tr);
+            });
+
+            calculateTotals();
+        }
+
+        function updateRowField(dateStr, field, value) {
+            let sanitized = value.trim();
+            if (field === 'work' || field === 'ot') {
+                sanitized = sanitizeInput(value);
+            }
+            
+            timesheetData[dateStr][field] = sanitized;
+
+            if (field === 'work' && sanitized === 'OFF') {
+                timesheetData[dateStr]['ot'] = '';
+            }
+
+            saveData();
+            renderTimesheet();
+        }
+
+        function handleEnterKey(event, inputElement) {
+            if (event.key === "Enter") {
+                inputElement.blur();
+            }
+        }
+
+        // --- 7. TÍNH TOÁN CÁC THÔNG SỐ TỔNG HỢP ---
+        function calculateTotals() {
+            const dates = generateCycleDates(currentMonth, currentYear);
+            
+            let totalWorkMinutes = 0;
+            let totalOtMinutes = 0;
+            let workDaysCount = 0;
+            let offDaysCount = 0;
+
+            dates.forEach(dateStr => {
+                const record = timesheetData[dateStr] || { work: "", ot: "", note: "" };
+
+                if (record.work === "OFF") {
+                    offDaysCount++;
+                } else if (record.work && record.work.trim() !== "") {
+                    const wMinutes = timeStringToMinutes(record.work);
+                    if (wMinutes > 0) {
+                        totalWorkMinutes += wMinutes;
+                        workDaysCount++;
+                    }
+                }
+
+                if (record.ot && record.ot.trim() !== "") {
+                    totalOtMinutes += timeStringToMinutes(record.ot);
+                }
+            });
+
+            // Cập nhật số liệu hiển thị trên panel thống kê dưới bảng
+            document.getElementById('statWorkDays').textContent = `${workDaysCount} ngày`;
+            document.getElementById('statOffDays').textContent = `${offDaysCount} ngày`;
+            document.getElementById('statTotalWorkHours').textContent = minutesToTimeString(totalWorkMinutes) || "0h";
+            document.getElementById('statTotalOtHours').textContent = minutesToTimeString(totalOtMinutes) || "0h";
+            
+            if (workDaysCount > 0) {
+                const avgMinutes = Math.round(totalWorkMinutes / workDaysCount);
+                document.getElementById('statAvgWorkHours').textContent = `${minutesToTimeString(avgMinutes)}/ngày`;
+            } else {
+                document.getElementById('statAvgWorkHours').textContent = "0h/ngày";
+            }
+
+            const grandTotalMinutes = totalWorkMinutes + totalOtMinutes;
+            document.getElementById('statGrandTotalHours').textContent = minutesToTimeString(grandTotalMinutes) || "0h";
+        }
+
+        // --- 8. CÁC TÍNH NĂNG TỰ ĐỘNG ĐIỀN NHANH ---
+        function fillStandardEightHours() {
+            showModal(
+                "Điền nhanh công",
+                "Hệ thống sẽ tự động điền '8h' làm chính vào tất cả các ngày từ Thứ hai đến Thứ bảy trong chu kỳ chưa có dữ liệu. Bạn có muốn tiếp tục?",
+                "indigo",
+                function() {
+                    const dates = generateCycleDates(currentMonth, currentYear);
+                    let filledCount = 0;
+                    
+                    dates.forEach(dateStr => {
+                        const dayName = getVietnameseDayOfWeek(dateStr);
+                        if (dayName !== "Chủ nhật") {
+                            if (!timesheetData[dateStr].work) {
+                                timesheetData[dateStr].work = "8h";
+                                filledCount++;
+                            }
+                        }
+                    });
+
+                    saveData();
+                    renderTimesheet();
+                    showToast(`Đã tự động điền nhanh 8h cho ${filledCount} ngày làm việc!`, "success");
+                }
+            );
+        }
+
+        function clearAllHours() {
+            showModal(
+                "Xóa toàn bộ giờ",
+                "Hệ thống sẽ xóa sạch tất cả giờ làm (WORK) và giờ tăng ca (OT) trong chu kỳ hiện tại để bạn nhập lại từ đầu.",
+                "rose",
+                function() {
+                    const dates = generateCycleDates(currentMonth, currentYear);
+                    dates.forEach(dateStr => {
+                        timesheetData[dateStr] = { work: "", ot: "", note: "" };
+                    });
+                    saveData();
+                    renderTimesheet();
+                    showToast("Đã xóa sạch giờ làm của chu kỳ hiện tại!", "info");
+                }
+            );
+        }
+
+        // --- 9. XUẤT EXCEL (CSV) ---
+        function exportToExcel() {
+            const dates = generateCycleDates(currentMonth, currentYear);
+            let csvContent = "\uFEFF"; // BOM hỗ trợ Unicode tiếng Việt
+            
+            csvContent += `CHẤM CÔNG THÁNG ${currentMonth} ( ${currentYear} )\n`;
+            csvContent += `Họ tên : ${employeeName}\n\n`;
+            csvContent += `DATE,TIME WORK,OT,TOTAL,NOTE\n`;
+
+            dates.forEach(dateStr => {
+                const record = timesheetData[dateStr] || { work: "", ot: "", note: "" };
+                let rowTotal = "";
+                if (record.work === "OFF") {
+                    rowTotal = "OFF";
+                } else {
+                    rowTotal = sumTimeStrings(record.work, record.ot);
+                }
+
+                const parts = dateStr.split('-');
+                const formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                const cleanNote = (record.note || "").replace(/,/g, " ");
+
+                csvContent += `${formattedDate},${record.work || ""},${record.ot || ""},${rowTotal || ""},${cleanNote}\n`;
+            });
+
+            const grandTotal = document.getElementById('statGrandTotalHours').textContent;
+            const totalWork = document.getElementById('statTotalWorkHours').textContent;
+            const totalOt = document.getElementById('statTotalOtHours').textContent;
+            const workDays = document.getElementById('statWorkDays').textContent;
+
+            csvContent += `\n`;
+            csvContent += `Tổng số ngày làm việc:,${workDays},,,\n`;
+            csvContent += `Tổng giờ làm chính:,${totalWork},,,\n`;
+            csvContent += `Tổng giờ tăng ca:,${totalOt},,,\n`;
+            csvContent += `TỔNG CỘNG TẤT CẢ:,${grandTotal},,,\n`;
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const fileName = `Cham_Cong_${employeeName.replace(/\s+/g, '_')}_Thang_${currentMonth}_${currentYear}.csv`;
+            
+            if (navigator.msSaveBlob) { 
+                navigator.msSaveBlob(blob, fileName);
+            } else {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", fileName);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+
+            showToast("Xuất bảng chấm công Excel thành công!", "success");
+        }
+
+        // --- 10. GIAO DIỆN MODAL VÀ TOAST THAY THẾ ALERT ---
+        let modalConfirmCallback = null;
+
+        function showModal(title, message, themeColor = "indigo", confirmCallback) {
+            const modal = document.getElementById('customModal');
+            const container = document.getElementById('modalContainer');
+            const mTitle = document.getElementById('modalTitle');
+            const mMessage = document.getElementById('modalMessage');
+            const mIcon = document.getElementById('modalIcon');
+            const mBtnConfirm = document.getElementById('modalBtnConfirm');
+
+            mTitle.textContent = title;
+            mMessage.textContent = message;
+            modalConfirmCallback = confirmCallback;
+
+            if (themeColor === "rose") {
+                mIcon.className = "flex items-center justify-center w-12 h-12 bg-rose-100 text-rose-600 rounded-full mx-auto mb-4";
+                mIcon.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-xl"></i>`;
+                mBtnConfirm.className = "px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-sm font-medium transition-colors";
+            } else {
+                mIcon.className = "flex items-center justify-center w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full mx-auto mb-4";
+                mIcon.innerHTML = `<i class="fa-solid fa-circle-info text-xl"></i>`;
+                mBtnConfirm.className = "px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors";
+            }
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                container.classList.remove('scale-95', 'opacity-0');
+                container.classList.add('scale-100', 'opacity-100');
+            }, 50);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('customModal');
+            const container = document.getElementById('modalContainer');
+            
+            container.classList.remove('scale-100', 'opacity-100');
+            container.classList.add('scale-95', 'opacity-0');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        }
+
+        document.getElementById('modalBtnCancel').addEventListener('click', closeModal);
+        document.getElementById('modalBtnConfirm').addEventListener('click', function() {
+            if (modalConfirmCallback) {
+                modalConfirmCallback();
+            }
+            closeModal();
+        });
+
+        function showToast(message, type = "success") {
+            const toast = document.getElementById('toast');
+            const tMessage = document.getElementById('toastMessage');
+            const tIcon = document.getElementById('toastIcon');
+
+            tMessage.textContent = message;
+
+            if (type === "success") {
+                tIcon.className = "fa-solid fa-circle-check text-emerald-400 text-lg";
+                toast.className = "fixed bottom-5 right-5 bg-slate-900 text-white text-sm px-5 py-3.5 rounded-xl shadow-2xl flex items-center space-x-3 z-50 transform translate-y-0 opacity-100 transition-all duration-300 border-l-4 border-emerald-500";
+            } else if (type === "info") {
+                tIcon.className = "fa-solid fa-circle-info text-sky-400 text-lg";
+                toast.className = "fixed bottom-5 right-5 bg-slate-900 text-white text-sm px-5 py-3.5 rounded-xl shadow-2xl flex items-center space-x-3 z-50 transform translate-y-0 opacity-100 transition-all duration-300 border-l-4 border-sky-500";
+            } else {
+                tIcon.className = "fa-solid fa-triangle-exclamation text-rose-400 text-lg";
+                toast.className = "fixed bottom-5 right-5 bg-slate-900 text-white text-sm px-5 py-3.5 rounded-xl shadow-2xl flex items-center space-x-3 z-50 transform translate-y-0 opacity-100 transition-all duration-300 border-l-4 border-rose-500";
+            }
+
+            setTimeout(() => {
+                toast.className = "fixed bottom-5 right-5 bg-slate-950 text-white text-sm px-5 py-3.5 rounded-xl shadow-2xl flex items-center space-x-3 z-50 transform translate-y-20 opacity-0 transition-all duration-300";
+            }, 4000);
+        }
+
+    </script>
+</body>
+</html>
